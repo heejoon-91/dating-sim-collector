@@ -6,6 +6,13 @@ import streamlit as st
 import os
 from dotenv import load_dotenv
 
+# 페이지 설정 (브라우저 탭 제목 및 아이콘)
+st.set_page_config(
+    page_title="AI 소개팅 시뮬레이터",
+    page_icon="🗣️",
+    layout="centered"
+)
+
 # 1. 환경 변수 로드 (.env 파일 읽기)
 load_dotenv()
 
