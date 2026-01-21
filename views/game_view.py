@@ -9,6 +9,8 @@ def show_game():
     
     # 0. 기본 설정값 가져오기
     user_gender = st.session_state.get("gender", "F") # 기본값 F
+    # - (수정) 닉네임 가져오기
+    user_nickname = st.session_state.get("nickname", "OO")
     
     # 세션 상태 초기화
     if "current_round" not in st.session_state:
@@ -31,8 +33,8 @@ def show_game():
 
     # 대화 히스토리 초기화 (앱 켜질 때 or 라운드 변경 직후 메시지가 비어있을 때 contents가 비어있으면 초기화)
     if "messages" not in st.session_state:
-        # 프롬프트 생성
-        sys_prompt = get_system_prompt(current_type, user_gender)
+        # [수정 1] 프롬프트 생성 시 user_nickname 전달
+        sys_prompt = get_system_prompt(current_type, user_gender, user_nickname)
         # 첫 인사 생성
         greeting = get_first_greeting(current_type, user_gender)
         
@@ -62,14 +64,20 @@ def show_game():
         with st.chat_message("user"):
             st.write(prompt)
 
-        # AI 응답 생성
+# AI 응답 생성
         with st.chat_message("assistant"):
             message_placeholder = st.empty()
             with st.spinner("상대방이 입력 중입니다..."):
                 result = get_ai_response(st.session_state["messages"])
                 
             ai_text = result.get("response", "...")
-            score_delta = result.get("score", 0)
+            
+            # === [여기 수정] 점수 변환 안전장치 추가 ===
+            try:
+                score_delta = int(result.get("score", 0))
+            except (ValueError, TypeError):
+                score_delta = 0
+            # =========================================
             
             # 호감도 업데이트 (현재 라운드)
             prev_score = st.session_state["affection_scores"][current_round]
@@ -138,8 +146,8 @@ def show_game():
             next_type = ROUND_TYPES[next_round]
             next_name = get_persona_name(next_type, user_gender)
             
-            # 메시지함 리셋 (새로운 페르소나 적용)
-            new_sys_prompt = get_system_prompt(next_type, user_gender)
+            # [수정 2] 다음 라운드 프롬프트 생성 시에도 user_nickname 전달
+            new_sys_prompt = get_system_prompt(next_type, user_gender, user_nickname)
             new_greeting = get_first_greeting(next_type, user_gender)
             
             st.session_state["messages"] = [
