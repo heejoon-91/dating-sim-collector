@@ -16,7 +16,7 @@ def show_intro():
     # 2. 입력 폼
     col1, col2 = st.columns([3, 1]) # 디자인을 위해 칸 나누기
     with col1:
-        nickname = st.text_input("닉네임을 입력해주세요 (익명 보장)", placeholder="예: 판교 사랑꾼")
+        nickname = st.text_input("닉네임을 입력해주세요 (익명 보장)", placeholder="예: 얼굴빼고 차은우, 얼굴없는 윈터")
     
     gender_kor = st.radio("성별을 선택해주세요", ["남성", "여성"], horizontal=True)
     gender = "M" if gender_kor == "남성" else "F"
@@ -44,7 +44,7 @@ def show_intro():
                     st.session_state["session_id"] = session_id
                     st.session_state["nickname"] = nickname
                     st.session_state["gender"] = gender
-                    st.session_state["step"] = "game" # 다음 단계로 이동 신호
+                    st.session_state["step"] = "story" # 스토리 화면으로 이동
                     
                     time.sleep(1) # 약간의 로딩 연출
                     st.rerun() # 화면 새로고침 -> main.py가 game 화면을 보여줌

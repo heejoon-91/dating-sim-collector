@@ -84,14 +84,21 @@ def show_result():
         return
     
     my_persona = analysis.get("my_persona", {})
-    ideal = analysis.get("ideal_preference", {})
+    compatibility = analysis.get("compatibility", {})
+    insights = analysis.get("insights", {})
     
     # =============================================
     # 1. 메인 타이틀: 당신의 연애 스타일
     # =============================================
     style_name = my_persona.get('style', '알 수 없음')
+    my_type = my_persona.get('type', 'UNKNOWN')
+    
     st.title(f"💖 {nickname}님의 연애 스타일")
     st.header(f"**\"{style_name}\"**")
+    
+    # 유저 타입 배지
+    type_emoji = {"EMOTIONAL": "🥺 공감형", "LOGICAL": "🤓 이성형", "TOUGH": "😉 직진형"}
+    st.info(f"당신의 타입: **{type_emoji.get(my_type, '알 수 없음')}**")
     
     keywords = my_persona.get("keywords", [])
     if keywords:
@@ -102,9 +109,9 @@ def show_result():
     # =============================================
     # 2. AI 추천 상대 + 호감도 공개
     # =============================================
-    st.subheader("💘 AI가 분석한 당신의 이상형")
+    st.subheader("💘 가장 잘 맞는 상대")
     
-    best_match = ideal.get("best_match", "UNKNOWN")
+    best_match = compatibility.get("best_match", "UNKNOWN")
     best_match_name = get_persona_name(best_match, user_gender)
     
     # 호감도 점수 가져오기
@@ -112,12 +119,33 @@ def show_result():
     best_score = affection_scores.get(score_map.get(best_match, 1), 50)
     
     st.success(f"🎯 **{best_match_name}** 타입과 가장 잘 맞습니다! (호감도 {best_score}점)")
-    st.markdown(f"**왜 잘 맞을까요?** {ideal.get('reason', '-')}")
+    st.markdown(f"**왜 잘 맞을까요?** {compatibility.get('best_reason', '-')}")
     
     st.divider()
     
     # =============================================
-    # 3. 각 상대별 호감도 + 간단 피드백
+    # 3. 스타일 호환성 분석 (NEW!)
+    # =============================================
+    st.subheader("🔄 스타일 호환성 분석")
+    
+    col_sim, col_opp = st.columns(2)
+    
+    with col_sim:
+        similar_style = compatibility.get("similar_style", "UNKNOWN")
+        similar_name = get_persona_name(similar_style, user_gender) if similar_style != "UNKNOWN" else "알 수 없음"
+        st.markdown(f"**비슷한 스타일**: {similar_name}")
+        st.caption(compatibility.get("similar_chemistry", "-"))
+    
+    with col_opp:
+        opposite_style = compatibility.get("opposite_style", "UNKNOWN")
+        opposite_name = get_persona_name(opposite_style, user_gender) if opposite_style != "UNKNOWN" else "알 수 없음"
+        st.markdown(f"**반대 스타일**: {opposite_name}")
+        st.caption(compatibility.get("opposite_chemistry", "-"))
+    
+    st.divider()
+    
+    # =============================================
+    # 4. 각 상대별 호감도 + 간단 피드백
     # =============================================
     st.subheader("📊 각 상대방이 느낀 호감도")
     
@@ -156,7 +184,7 @@ def show_result():
     st.divider()
     
     # =============================================
-    # 4. 당신의 선택 vs AI 추천 비교
+    # 5. 당신의 선택 vs AI 추천 비교
     # =============================================
     st.subheader("💕 당신의 선택")
     
@@ -167,13 +195,35 @@ def show_result():
         if final_choice == best_match:
             st.success(f"**{chosen_name}**님을 선택하셨습니다! AI 분석과 일치해요 🎯")
         else:
+            best_match_name = get_persona_name(best_match, user_gender)
             st.info(f"**{chosen_name}**님을 선택하셨습니다!")
             st.caption(f"AI는 {best_match_name}님을 추천했지만, 마음은 마음대로죠 💕")
     
     st.divider()
     
     # =============================================
-    # 5. 연애 강점/약점 + 조언
+    # 6. 연애 인사이트 (NEW!)
+    # =============================================
+    st.subheader("💡 연애 인사이트")
+    
+    # 긍정적인 모습
+    st.markdown(f"✅ **잘한 점**: {insights.get('positive', '-')}")
+    
+    # 개선할 점
+    st.markdown(f"📈 **개선하면 좋을 점**: {insights.get('improvement', '-')}")
+    
+    # 연애 팁
+    st.info(f"💡 **연애 팁**: {insights.get('dating_tip', '-')}")
+    
+    # 주의사항 (있으면)
+    warning = insights.get('warning', '')
+    if warning and warning != '-' and warning.lower() != 'none':
+        st.warning(f"⚠️ **주의**: {warning}")
+    
+    st.divider()
+    
+    # =============================================
+    # 7. 강점과 약점
     # =============================================
     st.subheader("🪞 연애에서의 강점과 약점")
     
@@ -181,14 +231,12 @@ def show_result():
     with col_a:
         st.success(f"**강점**: {my_persona.get('strength', '-')}")
     with col_b:
-        st.warning(f"**주의할 점**: {my_persona.get('weakness', '-')}")
-    
-    st.markdown(f"💡 **연애 조언**: {ideal.get('advice', '-')}")
+        st.warning(f"**보완할 점**: {my_persona.get('weakness', '-')}")
     
     st.divider()
     
     # =============================================
-    # 6. 전체 요약
+    # 8. 전체 요약
     # =============================================
     st.subheader("📝 분석 요약")
     st.markdown(analysis.get("summary", "분석 결과 없음"))
@@ -203,7 +251,7 @@ def show_result():
                 session_id=session_id,
                 final_choice=final_choice,
                 my_persona=my_persona,
-                ideal_preference=ideal
+                ideal_preference=compatibility
             )
             st.session_state["db_saved"] = True
     
@@ -213,5 +261,3 @@ def show_result():
     if st.button("처음부터 다시 하기", use_container_width=True):
         st.session_state.clear()
         st.rerun()
-
-

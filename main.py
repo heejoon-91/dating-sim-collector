@@ -1,4 +1,5 @@
 from views.intro_view import show_intro
+from views.story_view import show_story
 from views.game_view import show_game
 from views.result_view import show_result
 import streamlit as st
@@ -22,7 +23,7 @@ if not get_secret("OPENAI_API_KEY"):
 # 2. 세션 상태(State) 초기화
 # ---------------------------------------------------------
 if "step" not in st.session_state:
-    st.session_state["step"] = "intro" # 초기 상태: intro, game, result
+    st.session_state["step"] = "intro" # 초기 상태: intro, story, game, result
 
 if "user_data" not in st.session_state:
     st.session_state["user_data"] = {} # 유저 정보(닉네임 등) 저장
@@ -33,15 +34,13 @@ if "game_logs" not in st.session_state:
 # ---------------------------------------------------------
 # 3. 메인 실행 로직
 # ---------------------------------------------------------
-
-# ---------------------------------------------------------
-# 4. 메인 실행 로직
-# ---------------------------------------------------------
 def main():
     current_step = st.session_state["step"]
     
     if current_step == "intro":
         show_intro()
+    elif current_step == "story":
+        show_story()
     elif current_step == "game":
         show_game()
     elif current_step == "result":
