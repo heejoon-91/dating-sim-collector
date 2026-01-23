@@ -2,7 +2,7 @@ import streamlit as st
 import time
 from services.llm_service import get_ai_response
 from services.db_service import save_chat_log, save_affinity_log
-from prompts_haryeong import get_system_prompt, get_persona_name, get_first_greeting
+from config.prompts import get_system_prompt, get_persona_name, get_first_greeting
 
 # 한 사람당 최대 대화 횟수
 MAX_TURNS = 10
