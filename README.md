@@ -20,3 +20,4 @@ dating-sim-collector/
 ├── .env		   # [보안] API Key (OpenAI, Supabase) 관리
 └── README.md
 ```
+`chroma_service.py` 실행시키면 chomadb 생성
