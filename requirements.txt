@@ -3,3 +3,5 @@ openai
 supabase
 python-dotenv
 plotly
+chromadb
+sentence-transformers
